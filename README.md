@@ -3,7 +3,7 @@
 Bot para consulta de informações no portal do aluno da UTFPR, para matéria de Sistemas Distribuídos.
 
 # Descrição da arquitetura
-[Arquitetura do sistema](https://github.com/tuchinski/projeto_sd/blob/main/doc/Diagrama_Bot_Telegram_v2.png "Arquitetura do sistema")
+![Arquitetura do sistema](https://github.com/tuchinski/projeto_sd/blob/main/doc/Diagrama_Bot_Telegram_v2.png "Arquitetura do sistema")
 
 1 - O aluno realiza uma requisição no Telegram, que enviada para o servidor.
 
