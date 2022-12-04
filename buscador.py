@@ -17,6 +17,8 @@ def login():
 
     request_body = {
 
+        "username":"a1792903",
+        "password":""
     }
 
     response = requests.post(URL_LOGIN, headers=headers_request, json=request_body)
