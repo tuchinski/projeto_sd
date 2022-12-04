@@ -3,11 +3,18 @@
 Bot para consulta de informações no portal do aluno da UTFPR, para matéria de Sistemas Distribuídos.
 
 # Descrição da arquitetura
+![Arquitetura do sistema](https://github.com/tuchinski/projeto_sd/blob/main/doc/Diagrama_Bot_Telegram_v2.png "Arquitetura do sistema")
+
 1 - O aluno realiza uma requisição no Telegram, que enviada para o servidor.
+
 2 - O servidor recebe a requisição, identifica e direciona para a aplicação que irá extrair os dados do portal do aluno.
+
 3 - A aplicação responsável pela extração dos dados recebe a requisição e realiza a solicitação para o portal do aluno.
+
 4 - O portal do aluno retorna as informações solicitadas, e a aplicação extrai os dados solicitados.
+
 5 - A aplicação responsável pela extração dos dados, envia os mesmos, formatados, para o servidor responsável pelas requisições do telegram.
+
 6 - A aplicação responsável pelas requisições do telegram retorna as informações solicitadas para o aluno.
 
 # Interfaces de Serviço
