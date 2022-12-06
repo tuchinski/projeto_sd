@@ -148,12 +148,14 @@ def busca_disciplinas_matriculadas(ra: str, token_aluno: str):
                     turma,sala = [remove_bad_characters(x) for x in horario.text.split("/")]
 
                     for materia in dados_disciplinas_matriculadas:
-                        if turma == f"{materia}-{dados_disciplinas_matriculadas[materia]['turma']}":
+                        # nota: o metodo find retorna a posição de onde a substring começa
+                        if turma.find(f"{materia}") >= 0:
                             dados_disciplinas_matriculadas[materia]["horarios"].append({
                                 "codigo_horario": codigo_horario_atual,
                                 "inicio_aula": horario_inicial,
                                 "final_aula": horario_final,
-                                "dia_semana": dias_semana[i]
+                                "dia_semana": dias_semana[i],
+                                "sala_aula": sala
                             })
                 except ValueError:
                     # Caso ocorra o ValueError, o campo do horário está vazio, ou seja, o aluno
@@ -174,7 +176,7 @@ if __name__ == "__main__":
     try:
         # token_aluno = login(dados["ra"], dados["senha"])
         # print( token_aluno)
-        token_aluno = "eyJraWQiOiJkZW1vaXNlbGxlLXNlY3VyaXR5LWp3dCIsImFsZyI6IlJTNTEyIn0.eyJpc3MiOiJTVE9SRSIsImV4cCI6MTY3MDM3MTA2MywiYXVkIjoid2ViIiwianRpIjoiVWRmZThkRFhLYUZDa3JBdUQyYkoyZyIsImlhdCI6MTY3MDM1NjY2MywibmJmIjoxNjcwMzU2NjAzLCJpZGVudGl0eSI6IjE3OTIzMyIsIm5hbWUiOiJhMTc5MjMzNCIsInJvbGVzIjpbXSwicGVybWlzc2lvbnMiOnsiYXBwTGlzdCI6WyJzdXBvcnRlLG1vb2RsZSxtYWlsLG51dmVtLHNlaSxwb3J0YWxBbHVubyxtaW5oYUJpYmxpb3RlY2EsbW9vZGxlLG1haWwiXSwiQWRkaXRpb25hbFVzZXJJbmZvIjpbIlczc2lZMjlrYVdkdlZXNXBaR0ZrWlNJNk15d2lZMjlrYVdkdlEzVnljMjhpT2pNMUxDSmpiMlJwWjI5UVpYTnpiMkVpT2pFM09USXpNeXdpYjNKa1pXMGlPakVzSW1Gc2RXNXZRM1Z5YzI5SlpDSTZJamhpS3pFcmRDSXNJbkJsY21sdlpHOGlPamdzSW1OdlpHbG5iMGR5WVdSbElqbzFNQ3dpWVc1dlNXNW5jbVZ6YzI4aU9qSXdNVFlzSW5CbGNtbHZaRzlKYm1keVpYTnpieUk2TVN3aVkyOWthV2R2VTJsMGRXRmpZVzlRYjNOemFYWmxiQ0k2TUgxZCJdfSwicGFyYW1zIjp7InNlcnZlck5hbWUiOiJzaXN0ZW1hczIudXRmcHIuZWR1LmJyOjQ0MyIsInRpcG9Vc3VhcmlvIjoiQUxVTk8iLCJub21lQ29tcGxldG8iOiJMRU9OQVJETyBNRU5ET05DQSBUVUNISU5TS0kiLCJlTWFpbCI6InR1Y2hpbnNraUBhbHVub3MudXRmcHIuZWR1LmJyIn19.XfV4F6uvqyQ9mXLN4vkFeD85NTZtm2zCLHTtHhIL-l5LJFNbc3eUTqY5YnLkkZJBfE0eEluu63trKTB4eKnjn1T_-IKh42FDGYl7aQIq5GD4RSaC3cNWGjxT-rdfOeLHNoBXaVI84j4w2Bn2IECSoxBIN0Z_IQ06dh2rpqF_-PWyvTGXKOT3xMjWngNQoxC7h-sdgHEVKMi44ZK7AAvuhLGDNXWlPunBTH6EJbr_jCtpueMwqfrWO0wWHDDyspZvfgAYXLGBY7zmMbh-8Yyt0bxTpiJZN6vfVa8VbNpoKtd9NBfvDCa_9PFlxpmeAod7BLeBnfR-fVPzboT_22CIPfaB1v2c2iEzkrBYjkA39Yo2DlFCuTt0ffEeLqUOVUCkz1tWY4t2u6FumpQzVEoxLpmxT3ZrkpfE9FQ1TVLoaW4pvOcj1WKRkZOitDC1WW2IFyHZiE4i_BOpxuhUNmn6DijORjqTY-8p3NFfuxn8n1L4VvyyP66M5x1xwaeoFFfdw-3F7zS36auHhuSob4t7yy-y_BfzXRXfPPyf9L9hb6K-BFJ1hlGR8OyzCRdCglUjy5yQJz2kmLI6CjJJ7ky7yZhatqlgE0IzEnNM37I5WOVS5rlVnO_r6_PRPD2NVve7_ZqRF7VXUW4yVz9DXZWKQDBq-oxVVLl8AiY6ommYvMU"
+        token_aluno = "eyJraWQiOiJkZW1vaXNlbGxlLXNlY3VyaXR5LWp3dCIsImFsZyI6IlJTNTEyIn0.eyJpc3MiOiJTVE9SRSIsImV4cCI6MTY3MDM3MTc1MywiYXVkIjoid2ViIiwianRpIjoicklyM0ZvR2VOU0RMV1JWUzY1LTNvQSIsImlhdCI6MTY3MDM1NzM1MywibmJmIjoxNjcwMzU3MjkzLCJpZGVudGl0eSI6IjE3OTI5MCIsIm5hbWUiOiJhMTc5MjkwMyIsInJvbGVzIjpbXSwicGVybWlzc2lvbnMiOnsiYXBwTGlzdCI6WyJzdXBvcnRlLG1vb2RsZSxtYWlsLG51dmVtLHNlaSxwb3J0YWxBbHVubyxtaW5oYUJpYmxpb3RlY2EsbW9vZGxlLG1haWwiXSwiQWRkaXRpb25hbFVzZXJJbmZvIjpbIlczc2lZMjlrYVdkdlZXNXBaR0ZrWlNJNk1UTXNJbU52WkdsbmIwTjFjbk52SWpvNExDSmpiMlJwWjI5UVpYTnpiMkVpT2pFM09USTVNQ3dpYjNKa1pXMGlPakVzSW1Gc2RXNXZRM1Z5YzI5SlpDSTZJbVJ6YzNOd1ppSXNJbkJsY21sdlpHOGlPakVzSW1OdlpHbG5iMGR5WVdSbElqb3hNQ3dpWVc1dlNXNW5jbVZ6YzI4aU9qSXdNaklzSW5CbGNtbHZaRzlKYm1keVpYTnpieUk2TWl3aVkyOWthV2R2VTJsMGRXRmpZVzlRYjNOemFYWmxiQ0k2TUgwc2V5SmpiMlJwWjI5VmJtbGtZV1JsSWpvekxDSmpiMlJwWjI5RGRYSnpieUk2TXpVc0ltTnZaR2xuYjFCbGMzTnZZU0k2TVRjNU1qa3dMQ0p2Y21SbGJTSTZNU3dpWVd4MWJtOURkWEp6YjBsa0lqb2llRGQwSzNSM0lpd2ljR1Z5YVc5a2J5STZOaXdpWTI5a2FXZHZSM0poWkdVaU9qVXdMQ0poYm05SmJtZHlaWE56YnlJNk1qQXhOaXdpY0dWeWFXOWtiMGx1WjNKbGMzTnZJam94TENKamIyUnBaMjlUYVhSMVlXTmhiMUJ2YzNOcGRtVnNJam93ZlYwPSJdfSwicGFyYW1zIjp7InNlcnZlck5hbWUiOiJzaXN0ZW1hczIudXRmcHIuZWR1LmJyOjQ0MyIsInRpcG9Vc3VhcmlvIjoiQUxVTk8iLCJub21lQ29tcGxldG8iOiJJTFpJTUFSQSBTSUxWQSBFIFNJTFZBIiwiZU1haWwiOiJpbHppbWFyYXNpbHZhQGFsdW5vcy51dGZwci5lZHUuYnIifX0.cxn_0dsELXbD5yP9FKNaFzkvyGw8MQQ6qw5LGoOORCd8XXf0NZPDPaVQ8kIdq8hDVyDCDJsaWhhGLoXu2xomwCqG-iueyNOd4amt5xNZhRktp4zacvYAyWrSYclWmm459ifOtc5ebZI7Ne9lm2gR9jGWinYRBXoIHFEKLnWGCLATFT6kKerBD2RC5xcR5fuwBBL9PJBArZ5vtDcFrLL7c6dDYLfPe6IsbL95m1l1i5XpRs9so29r0lGDLIPTi4BM9VpaQ-1QXRtOyWqI3aBwRDytFkbV0yJaZ4N9nvVnOrKxkt3cJ9jqD8GBMufFTMYYRVYoWjCCerLaDFYx-HnZp37-nwzbwCVly_DcamrzCC8_hTrbOdq3Xd9bwHRL9zgXTlV19VonKjxC9fKZOB477NhFrKEEqIQBB7GsB8l_rimaDxtjIzqtgY-1hfG5tDR6AiJlqL_JYpIpV-rMJQj7fdAypTgRQypZbkbR9EmyOZ4OqhhR2IJBesy3cX_4Yh0vwXx7WBj4vQdv_w72QaPzrtpKr__gwxb7-mbGcZxZj3uBN9WDEthRkgGAYtK4CJKY4qGkzzgfjWZA-qCw90VnJtYAg6nxvxVdGJbOpy9d5fA4TDtdWflq72_PNX01yrVK6iixMucFllpPku1akib-MsU-vZ3LV_yCmnuo3mAE1KY"
         print(json.dumps(busca_disciplinas_matriculadas(dados["ra"],token_aluno), indent=4))
     except LoginErrorException as e:
         print(e)
