@@ -8,10 +8,6 @@ class LoginErrorException(Exception):
         self.descricao = descricao
         super().__init__(self.descricao)
 
-def main():
-    print("main")
-
-
 # Metodo que realiza o login no Portal do aluno
 def login(ra, senha):
     URL_LOGIN = "https://sistemas2.utfpr.edu.br/utfpr-auth/api/v1/"
@@ -22,7 +18,8 @@ def login(ra, senha):
     }
 
     request_body = {
-
+        "username":ra,
+        "password":senha
     }
 
     response = requests.post(URL_LOGIN, headers=headers_request, json=request_body)
@@ -82,7 +79,6 @@ def busca_boletim(ra: str, token_aluno: str):
 
         dados_disciplinas.append(dado_disciplina)
 
-    # print(json.dumps(dados_disciplinas, indent=4))
     return dados_disciplinas
 
 def remove_bad_characters(string:str):
@@ -163,23 +159,24 @@ def busca_disciplinas_matriculadas(ra: str, token_aluno: str):
                     # Caso ocorra o ValueError, o campo do horário está vazio, ou seja, o aluno
                     # não tem aula naquele dia e horário
                     continue
-        print(json.dumps(dados_disciplinas_matriculadas, indent=4))       
         return dados_disciplinas_matriculadas
-        
-        # with open("horario.html", "w") as file2:
-        #     file2.write(str(soap.find(id = "fshorarios_int").table.find_all("tr")))
-        # print(soap.find(id = "fshorarios_int"))
+
 
 
 
 
 
 if __name__ == "__main__":
-    # try:
-    #     token_aluno = login()
-    # except LoginErrorException as e:
-    #     print(e)
-    token_aluno = "eyJraWQiOiJkZW1vaXNlbGxlLXNlY3VyaXR5LWp3dCIsImFsZyI6IlJTNTEyIn0.eyJpc3MiOiJTVE9SRSIsImV4cCI6MTY3MDI5Njc1MCwiYXVkIjoid2ViIiwianRpIjoiTTZ1RFBoWmNISnRDRzUxX2RWM0tkUSIsImlhdCI6MTY3MDI4MjM1MCwibmJmIjoxNjcwMjgyMjkwLCJpZGVudGl0eSI6IjE3OTIzMyIsIm5hbWUiOiJhMTc5MjMzNCIsInJvbGVzIjpbXSwicGVybWlzc2lvbnMiOnsiYXBwTGlzdCI6WyJzdXBvcnRlLG1vb2RsZSxtYWlsLG51dmVtLHNlaSxwb3J0YWxBbHVubyxtaW5oYUJpYmxpb3RlY2EsbW9vZGxlLG1haWwiXSwiQWRkaXRpb25hbFVzZXJJbmZvIjpbIlczc2lZMjlrYVdkdlZXNXBaR0ZrWlNJNk15d2lZMjlrYVdkdlEzVnljMjhpT2pNMUxDSmpiMlJwWjI5UVpYTnpiMkVpT2pFM09USXpNeXdpYjNKa1pXMGlPakVzSW1Gc2RXNXZRM1Z5YzI5SlpDSTZJamhpS3pFcmRDSXNJbkJsY21sdlpHOGlPamdzSW1OdlpHbG5iMGR5WVdSbElqbzFNQ3dpWVc1dlNXNW5jbVZ6YzI4aU9qSXdNVFlzSW5CbGNtbHZaRzlKYm1keVpYTnpieUk2TVN3aVkyOWthV2R2VTJsMGRXRmpZVzlRYjNOemFYWmxiQ0k2TUgxZCJdfSwicGFyYW1zIjp7InNlcnZlck5hbWUiOiJzaXN0ZW1hczIudXRmcHIuZWR1LmJyOjQ0MyIsInRpcG9Vc3VhcmlvIjoiQUxVTk8iLCJub21lQ29tcGxldG8iOiJMRU9OQVJETyBNRU5ET05DQSBUVUNISU5TS0kiLCJlTWFpbCI6InR1Y2hpbnNraUBhbHVub3MudXRmcHIuZWR1LmJyIn19.sDqzgGCJNNknq4laKy0iXTltIElDx0PqAo91WwMFzG0FXtsyHVxSi_zEEeOn3XkXGO3LiECPtPstQ9Jen1Dnma76WPAZMl5iTF4vtaFRhwGMWqWmWILbOoOixQuE6spTp0jFMDNzYXMSodmFM9oLfFeEBjOsUwqc6CsFtZHaCXgBi2h0BY61TIkl-FN4Z9VNBQoSTE9buAeu89g36mqTDkjvH2exzMJ964crZBrsFNdYRb9E0ZpakOzmdywQTgIk41nvKDOSbJXIfQixla-3WJ6G4mcIv7OjPMPESwujT_8180UF6ZvcdU-NsHF0h6q9elW4EtHc3OHWMAeZ52Obc92I33OWk6tkrVRb6kPe0ZGuJtQ_w58ocNlOX37NtL70ssbWUu2sMXLuEIyfawUtkvgIWG-fQapruUfZiSCuu0_D6DoUDylsPpzZcqlpYPilr96X93KZhQm4uWMfjoB8P6c2EtoOLQ5efq-4x3X1BPt7j9TI_Q6MWYiD7gcRjX8602hZ5OuXa36S6-hl7XKOAP9wwY-GFHDqiPBvbR-vYX-ZiLpQ0BlyS9IoGLWoIPj3yh2OMnaQ_wBplbP_zdW2uBXepg5aM25rOYAutftCq3mCuI21OHtjHOI2HRXebCNbsXn86KPlg6frkaF2yjJn-EQLjxA8qxZKUf2UbYxl76E"
+    # buscando dados para teste
+    with open("dados.json", "r") as file:
+        dados = json.loads(file.read())
+    print(dados)
+
+    try:
+        token_aluno = login(dados["ra"], dados["senha"])
+    except LoginErrorException as e:
+        print(e)
+    # token_aluno = "eyJraWQiOiJkZW1vaXNlbGxlLXNlY3VyaXR5LWp3dCIsImFsZyI6IlJTNTEyIn0.eyJpc3MiOiJTVE9SRSIsImV4cCI6MTY3MDI5Njc1MCwiYXVkIjoid2ViIiwianRpIjoiTTZ1RFBoWmNISnRDRzUxX2RWM0tkUSIsImlhdCI6MTY3MDI4MjM1MCwibmJmIjoxNjcwMjgyMjkwLCJpZGVudGl0eSI6IjE3OTIzMyIsIm5hbWUiOiJhMTc5MjMzNCIsInJvbGVzIjpbXSwicGVybWlzc2lvbnMiOnsiYXBwTGlzdCI6WyJzdXBvcnRlLG1vb2RsZSxtYWlsLG51dmVtLHNlaSxwb3J0YWxBbHVubyxtaW5oYUJpYmxpb3RlY2EsbW9vZGxlLG1haWwiXSwiQWRkaXRpb25hbFVzZXJJbmZvIjpbIlczc2lZMjlrYVdkdlZXNXBaR0ZrWlNJNk15d2lZMjlrYVdkdlEzVnljMjhpT2pNMUxDSmpiMlJwWjI5UVpYTnpiMkVpT2pFM09USXpNeXdpYjNKa1pXMGlPakVzSW1Gc2RXNXZRM1Z5YzI5SlpDSTZJamhpS3pFcmRDSXNJbkJsY21sdlpHOGlPamdzSW1OdlpHbG5iMGR5WVdSbElqbzFNQ3dpWVc1dlNXNW5jbVZ6YzI4aU9qSXdNVFlzSW5CbGNtbHZaRzlKYm1keVpYTnpieUk2TVN3aVkyOWthV2R2VTJsMGRXRmpZVzlRYjNOemFYWmxiQ0k2TUgxZCJdfSwicGFyYW1zIjp7InNlcnZlck5hbWUiOiJzaXN0ZW1hczIudXRmcHIuZWR1LmJyOjQ0MyIsInRpcG9Vc3VhcmlvIjoiQUxVTk8iLCJub21lQ29tcGxldG8iOiJMRU9OQVJETyBNRU5ET05DQSBUVUNISU5TS0kiLCJlTWFpbCI6InR1Y2hpbnNraUBhbHVub3MudXRmcHIuZWR1LmJyIn19.sDqzgGCJNNknq4laKy0iXTltIElDx0PqAo91WwMFzG0FXtsyHVxSi_zEEeOn3XkXGO3LiECPtPstQ9Jen1Dnma76WPAZMl5iTF4vtaFRhwGMWqWmWILbOoOixQuE6spTp0jFMDNzYXMSodmFM9oLfFeEBjOsUwqc6CsFtZHaCXgBi2h0BY61TIkl-FN4Z9VNBQoSTE9buAeu89g36mqTDkjvH2exzMJ964crZBrsFNdYRb9E0ZpakOzmdywQTgIk41nvKDOSbJXIfQixla-3WJ6G4mcIv7OjPMPESwujT_8180UF6ZvcdU-NsHF0h6q9elW4EtHc3OHWMAeZ52Obc92I33OWk6tkrVRb6kPe0ZGuJtQ_w58ocNlOX37NtL70ssbWUu2sMXLuEIyfawUtkvgIWG-fQapruUfZiSCuu0_D6DoUDylsPpzZcqlpYPilr96X93KZhQm4uWMfjoB8P6c2EtoOLQ5efq-4x3X1BPt7j9TI_Q6MWYiD7gcRjX8602hZ5OuXa36S6-hl7XKOAP9wwY-GFHDqiPBvbR-vYX-ZiLpQ0BlyS9IoGLWoIPj3yh2OMnaQ_wBplbP_zdW2uBXepg5aM25rOYAutftCq3mCuI21OHtjHOI2HRXebCNbsXn86KPlg6frkaF2yjJn-EQLjxA8qxZKUf2UbYxl76E"
     # print(token_aluno)
-    # busca_boletim("1792334", token_aluno)
-    busca_disciplinas_matriculadas("1792334",token_aluno)
+    # busca_boletim(dados["ra"], token_aluno)
+    print(busca_disciplinas_matriculadas(dados["ra"],token_aluno))
