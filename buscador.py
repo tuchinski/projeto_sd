@@ -12,7 +12,8 @@ def main():
     print("main")
 
 
-def login():
+# Metodo que realiza o login no Portal do aluno
+def login(ra, senha):
     URL_LOGIN = "https://sistemas2.utfpr.edu.br/utfpr-auth/api/v1/"
     
     headers_request = {
@@ -21,10 +22,7 @@ def login():
     }
 
     request_body = {
-        # "username":"a1792334",
-        # "password":"inppyu71"
-        "username":"a1792903",
-        "password":"joaoma2219938905!"
+
     }
 
     response = requests.post(URL_LOGIN, headers=headers_request, json=request_body)
@@ -34,6 +32,7 @@ def login():
 
     return response_formt["token"]
 
+# Método que realiza a extração de dados do boletim
 def busca_boletim(ra: str, token_aluno: str):
     
     URL_BOLETIM = f"https://sistemas2.utfpr.edu.br/dpls/sistema/aluno03/mpboletim.inicioAluno?p_pesscodnr={ra}&p_curscodnr=35&p_alcuordemnr=1"
@@ -98,12 +97,12 @@ def busca_disciplinas_matriculadas(ra: str, token_aluno: str):
         "Cookie": f"testcookie=abc; UTFPRSSO={token_aluno}; style=null"
     }
 
-    # response = requests.get(URL_DISCIPLINAS, headers=headers_request)
+    response = requests.get(URL_DISCIPLINAS, headers=headers_request)
 
     with open("disciplinas.html", "r") as file:
     
-        soap = BeautifulSoup(file.read(), "html.parser")
-        # soap = BeautifulSoup(response.text, "html.parser")
+        # soap = BeautifulSoup(file.read(), "html.parser")
+        soap = BeautifulSoup(response.text, "html.parser")
 
         # NOTA: As linhas da tabela que contém as matérias começam na posição 1, e vão até a n-3
         # Ex: se o aluno tiver 3 matérias, as linhas que contém os dados das matérias serão as linhas 1,2,3
