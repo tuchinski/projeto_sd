@@ -1,11 +1,12 @@
 from flask import Flask, request, jsonify, abort
+from flask_caching import Cache
 import buscador
+
+cache = Cache(config={'CACHE_TYPE': 'SimpleCache'})
 
 app = Flask(__name__)
 
-@app.route("/")
-def hello():
-    return ("hello world")
+cache.init_app(app)
 
 def get_ra_password(headers) -> tuple:
     return (headers.get("user"), headers.get("password"))
