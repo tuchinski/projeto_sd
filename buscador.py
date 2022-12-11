@@ -178,22 +178,3 @@ def busca_disciplinas_matriculadas(ra: str, token_aluno: str):
                 # não tem aula naquele dia e horário
                 continue
     return dados_disciplinas_matriculadas
-
-
-
-if __name__ == "__main__":
-    # buscando dados para teste
-    with open("dados.json", "r") as file:
-        dados = json.loads(file.read())
-
-    try:
-        token_aluno = login(dados["ra"], dados["senha"])
-        print( token_aluno)
-        # token_aluno = "eyJraWQiOiJkZW1vaXNlbGxlLXNlY3VyaXR5LWp3dCIsImFsZyI6IlJTNTEyIn0.eyJpc3MiOiJTVE9SRSIsImV4cCI6MTY3MDM3MTc1MywiYXVkIjoid2ViIiwianRpIjoicklyM0ZvR2VOU0RMV1JWUzY1LTNvQSIsImlhdCI6MTY3MDM1NzM1MywibmJmIjoxNjcwMzU3MjkzLCJpZGVudGl0eSI6IjE3OTI5MCIsIm5hbWUiOiJhMTc5MjkwMyIsInJvbGVzIjpbXSwicGVybWlzc2lvbnMiOnsiYXBwTGlzdCI6WyJzdXBvcnRlLG1vb2RsZSxtYWlsLG51dmVtLHNlaSxwb3J0YWxBbHVubyxtaW5oYUJpYmxpb3RlY2EsbW9vZGxlLG1haWwiXSwiQWRkaXRpb25hbFVzZXJJbmZvIjpbIlczc2lZMjlrYVdkdlZXNXBaR0ZrWlNJNk1UTXNJbU52WkdsbmIwTjFjbk52SWpvNExDSmpiMlJwWjI5UVpYTnpiMkVpT2pFM09USTVNQ3dpYjNKa1pXMGlPakVzSW1Gc2RXNXZRM1Z5YzI5SlpDSTZJbVJ6YzNOd1ppSXNJbkJsY21sdlpHOGlPakVzSW1OdlpHbG5iMGR5WVdSbElqb3hNQ3dpWVc1dlNXNW5jbVZ6YzI4aU9qSXdNaklzSW5CbGNtbHZaRzlKYm1keVpYTnpieUk2TWl3aVkyOWthV2R2VTJsMGRXRmpZVzlRYjNOemFYWmxiQ0k2TUgwc2V5SmpiMlJwWjI5VmJtbGtZV1JsSWpvekxDSmpiMlJwWjI5RGRYSnpieUk2TXpVc0ltTnZaR2xuYjFCbGMzTnZZU0k2TVRjNU1qa3dMQ0p2Y21SbGJTSTZNU3dpWVd4MWJtOURkWEp6YjBsa0lqb2llRGQwSzNSM0lpd2ljR1Z5YVc5a2J5STZOaXdpWTI5a2FXZHZSM0poWkdVaU9qVXdMQ0poYm05SmJtZHlaWE56YnlJNk1qQXhOaXdpY0dWeWFXOWtiMGx1WjNKbGMzTnZJam94TENKamIyUnBaMjlUYVhSMVlXTmhiMUJ2YzNOcGRtVnNJam93ZlYwPSJdfSwicGFyYW1zIjp7InNlcnZlck5hbWUiOiJzaXN0ZW1hczIudXRmcHIuZWR1LmJyOjQ0MyIsInRpcG9Vc3VhcmlvIjoiQUxVTk8iLCJub21lQ29tcGxldG8iOiJJTFpJTUFSQSBTSUxWQSBFIFNJTFZBIiwiZU1haWwiOiJpbHppbWFyYXNpbHZhQGFsdW5vcy51dGZwci5lZHUuYnIifX0.cxn_0dsELXbD5yP9FKNaFzkvyGw8MQQ6qw5LGoOORCd8XXf0NZPDPaVQ8kIdq8hDVyDCDJsaWhhGLoXu2xomwCqG-iueyNOd4amt5xNZhRktp4zacvYAyWrSYclWmm459ifOtc5ebZI7Ne9lm2gR9jGWinYRBXoIHFEKLnWGCLATFT6kKerBD2RC5xcR5fuwBBL9PJBArZ5vtDcFrLL7c6dDYLfPe6IsbL95m1l1i5XpRs9so29r0lGDLIPTi4BM9VpaQ-1QXRtOyWqI3aBwRDytFkbV0yJaZ4N9nvVnOrKxkt3cJ9jqD8GBMufFTMYYRVYoWjCCerLaDFYx-HnZp37-nwzbwCVly_DcamrzCC8_hTrbOdq3Xd9bwHRL9zgXTlV19VonKjxC9fKZOB477NhFrKEEqIQBB7GsB8l_rimaDxtjIzqtgY-1hfG5tDR6AiJlqL_JYpIpV-rMJQj7fdAypTgRQypZbkbR9EmyOZ4OqhhR2IJBesy3cX_4Yh0vwXx7WBj4vQdv_w72QaPzrtpKr__gwxb7-mbGcZxZj3uBN9WDEthRkgGAYtK4CJKY4qGkzzgfjWZA-qCw90VnJtYAg6nxvxVdGJbOpy9d5fA4TDtdWflq72_PNX01yrVK6iixMucFllpPku1akib-MsU-vZ3LV_yCmnuo3mAE1KY"
-        print(json.dumps(busca_disciplinas_matriculadas(dados["ra"],token_aluno), indent=4))
-        print(json.dumps(busca_boletim(dados["ra"],token_aluno), indent=4))
-    except LoginErrorException as e:
-        print(e)
-        exit()
-    # print(token_aluno)
-    # busca_boletim(dados["ra"], token_aluno)
