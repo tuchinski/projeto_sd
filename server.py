@@ -23,12 +23,16 @@ def get_dados_boletim():
     if usuario == None or senha == None:
         abort(400)
     
+    # Buscando dados na cache para o usuário informado
     dados_cache = cache.get(usuario)
 
+    # Caso encontre o usuário, e a senha seja a mesma, pega o token que já foi
+    # previamente informado
     if dados_cache and dados_cache["senha"] == senha:
         token = dados_cache["token"]
         print(f"Achou na cache o usuário {usuario}")
     else:
+        # Caso não ache o usuário na cache, tenta fazer o login no portal do aluno
         try:
             # Tenta realizar o login no portal do aluno, com as informações passadas
             print(f"Não achou o usuário {usuario}, tentando realizar login para obter token")
@@ -48,13 +52,26 @@ def get_dados_boletim():
 @app.route("/disciplinas", methods = ["GET"])
 def get_disciplinas_matriculadas():
     usuario, senha = get_ra_password(request.headers)
+    # Caso não seja passado no header o usuário ou senha do aluno
+    # retorna um erro 400(BAD REQUEST)
     if usuario == None or senha == None:
         abort(400)
-    try:
-        token = buscador.login(usuario, senha)
-    except buscador.LoginErrorException:
-        abort(401)
     
+    dados_cache = cache.get(usuario)
+
+    # Caso encontre o usuário, e a senha seja a mesma, pega o token que já foi
+    # previamente informado
+    if dados_cache and dados_cache["senha"] == senha:
+        token = dados_cache["token"]
+        print(f"Achou na cache o usuário {usuario}")
+    else:
+        # Caso não ache o usuário na cache, tenta fazer o login no portal do aluno
+        try:
+            # Tenta realizar o login no portal do aluno, com as informações passadas
+            token = buscador.login(usuario, senha)
+        except buscador.LoginErrorException:
+            abort(401)
+        
     retorno = buscador.busca_disciplinas_matriculadas(usuario,token)
 
     return jsonify(retorno)
