@@ -139,23 +139,40 @@ def busca_disciplinas_matriculadas(ra: str, token_aluno: str):
         
         i = -1
 
-        for horario in horarios_aula:
+        for horario_atualizado in horarios_aula:
             i = i+1
             try:
-                materia_atual,sala = [remove_bad_characters(x) for x in horario.text.split("/")]
+                materia_atual,sala = [remove_bad_characters(x) for x in horario_atualizado.text.split("/")]
+                flag_horario_atualizado = False # flag que indica se o horário foi atualizado
 
                 for materia in dados_disciplinas_matriculadas:
                     # nota: o metodo find retorna a posição de onde a substring começa
                     # os seja, é verificado se o código da matéria está na materia_atual
-                    if materia_atual.find(f"{materia}") >= 0:
+                    if materia_atual.find(materia) >= 0:
+                        # Verifica se já foi preenchido algum horário para aquela matéria
+                        if dados_disciplinas_matriculadas[materia]['horarios']:
+
+                            # percorrendo o array de horários daquela disciplina
+                            for horario_atualizado in dados_disciplinas_matriculadas[materia]['horarios']:
+
+                                # Valida se já existe um horário pra aquele dia da semana
+                                if horario_atualizado["dia_semana"] == dias_semana[i]:
+                                    # Caso exista um horário pra aquele dia da semana, atualiza o código_horário e 
+                                    # o horário do final da aula, e ao final, atualiza o valor da flag de atualização do horário
+                                    horario_atualizado["codigo_horario"] = horario_atualizado["codigo_horario"] + "/" + codigo_horario_atual
+                                    horario_atualizado["final_aula"] = horario_final
+                                    flag_horario_atualizado = True
+                                    break
                         
-                        dados_disciplinas_matriculadas[materia]["horarios"].append({
-                            "codigo_horario": codigo_horario_atual,
-                            "inicio_aula": horario_inicial,
-                            "final_aula": horario_final,
-                            "dia_semana": dias_semana[i],
-                            "sala_aula": sala
-                        })
+                        # Caso não exista horário daquela matéria pra aquele dia, faz um novo cadastro
+                        if not flag_horario_atualizado:
+                            dados_disciplinas_matriculadas[materia]["horarios"].append({
+                                "codigo_horario": codigo_horario_atual,
+                                "inicio_aula": horario_inicial,
+                                "final_aula": horario_final,
+                                "dia_semana": dias_semana[i],
+                                "sala_aula": sala
+                            })
             except ValueError:
                 # Caso ocorra o ValueError, o campo do horário está vazio, ou seja, o aluno
                 # não tem aula naquele dia e horário
