@@ -2,6 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 import json
 
+# Exception criada para ser lançada quando ocorre erro de autenticação no login
 class LoginErrorException(Exception):
     def __init__(self, codigo, descricao):
         self.codigo = codigo
@@ -9,7 +10,7 @@ class LoginErrorException(Exception):
         super().__init__(self.descricao)
 
 # Metodo que realiza o login no Portal do aluno
-def login(ra, senha):
+def login(ra: str, senha: str):
     URL_LOGIN = "https://sistemas2.utfpr.edu.br/utfpr-auth/api/v1/"
     
     headers_request = {
@@ -21,8 +22,10 @@ def login(ra, senha):
         "username":ra,
         "password":senha
     }
-
+    # realizando o request na URL de login
     response = requests.post(URL_LOGIN, headers=headers_request, json=request_body)
+
+    # transformando o retorno para dict
     response_formt = json.loads(response.text)
     if response.status_code == 401:
         raise LoginErrorException(response.status_code, response.text)
@@ -81,9 +84,11 @@ def busca_boletim(ra: str, token_aluno: str):
 
     return dados_disciplinas
 
+# método para remover os caracteres \n e \t 
 def remove_bad_characters(string:str):
     return string.replace("\n", "").replace("\t", "")
 
+# Método que realiza a extração dos dados das disciplinas matriculadas
 def busca_disciplinas_matriculadas(ra: str, token_aluno: str):
 
     # Nota: é necessário tirar o último caractere do RA para realizar a requisição
@@ -128,20 +133,25 @@ def busca_disciplinas_matriculadas(ra: str, token_aluno: str):
 
     dias_semana = ["segunda", "terca", "quarta", "quinta", "sexta", "sabado"]
 
+   # Iterando para cada linha da tabela
     for linha_tabela in linhas_tabela_horario:
         dados_linha = [x for x in linha_tabela.contents if x != "\n"]
 
+        # Armazenando as informações do início da linha
+        # Como a iteração é realizada linha a linha, o código da matéria, horário de início e fim das aulas, sempre serão os mesmos
         codigo_horario_atual = dados_linha[0].text.strip()
         horario_inicial = dados_linha[1].text.strip()
         horario_final = dados_linha[2].text.strip()
 
-        horarios_aula = linha_tabela.find_all("td") [1:]# array que armazena os horários de aula daquela linha; desconsiderando o primeiro td(é o código da aula. Ex: M1)
+        # array que armazena os horários de aula daquela linha; desconsiderando o primeiro td(é o código da aula. Ex: M1)
+        horarios_aula = linha_tabela.find_all("td") [1:]
         
         i = -1
 
         for horario_atualizado in horarios_aula:
             i = i+1
             try:
+                # tenta splitar o código da matéria e a sala, caso não tenha aula naquele dia, vai gerar o ValueError,
                 materia_atual,sala = [remove_bad_characters(x) for x in horario_atualizado.text.split("/")]
                 flag_horario_atualizado = False # flag que indica se o horário foi atualizado
 
