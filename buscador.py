@@ -95,73 +95,72 @@ def busca_disciplinas_matriculadas(ra: str, token_aluno: str):
 
     response = requests.get(URL_DISCIPLINAS, headers=headers_request)
 
-    with open("disciplinas.html", "r") as file:
+    soap = BeautifulSoup(response.text, "html.parser")
+
+    # NOTA: As linhas da tabela que contém as matérias começam na posição 1, e vão até a n-3
+    # Ex: se o aluno tiver 3 matérias, as linhas que contém os dados das matérias serão as linhas 1,2,3
+    # A primeira linha(i=0) contém o cabeçalho da tabela, e as 3 últimas armazenam o total de disciplinas,
+    # carga horária total do aluno, e a carga horária máxima, respectivamente.
+    linhas_tabela_disciplinas = soap.find_all(class_= "tbl")[1].find_all(class_ = "imprime")[1:-3]
     
-        # soap = BeautifulSoup(file.read(), "html.parser")
-        soap = BeautifulSoup(response.text, "html.parser")
+    dados_disciplinas_matriculadas = {}
 
-        # NOTA: As linhas da tabela que contém as matérias começam na posição 1, e vão até a n-3
-        # Ex: se o aluno tiver 3 matérias, as linhas que contém os dados das matérias serão as linhas 1,2,3
-        # A primeira linha(i=0) contém o cabeçalho da tabela, e as 3 últimas armazenam o total de disciplinas,
-        # carga horária total do aluno, e a carga horária máxima, respectivamente.
-        linhas_tabela_disciplinas = soap.find_all(class_= "tbl")[1].find_all(class_ = "imprime")[1:-3]
+    # Esta primeira parte, extraimos os dados das disciplinas somente
+    for linha in linhas_tabela_disciplinas:
+        # Limpando os dados recebidos da tabela
+        # Esse comando pega todos os filhos da linha e remove somente as posições que tem a string "\n"
+        dados_linha = [item for item in linha.contents if item != "\n"]
+
+        dados_disciplina = {}
+        dados_disciplina["campus"] = dados_linha[0].text
+        dados_disciplina["codigo"] = dados_linha[1].text
+        dados_disciplina["nome"] = dados_linha[2].text
+        dados_disciplina["turma"] = dados_linha[3].text
+        dados_disciplina["enquadramento"] = dados_linha[4].text
+        dados_disciplina["horarios"] = []
+        dados_disciplinas_matriculadas[dados_disciplina["codigo"]] =  dados_disciplina
+    
+    # Realizando a busca na tabela de horários
+
+    # Considera todas as linhas da tabela de horário, exceto a primeira, porque ela
+    # possui apenas os dados do cabeçalho
+    linhas_tabela_horario = soap.find(id = "fshorarios_int").table.find_all("tr")[1:]
+
+    dias_semana = ["segunda", "terca", "quarta", "quinta", "sexta", "sabado"]
+
+    for linha_tabela in linhas_tabela_horario:
+        dados_linha = [x for x in linha_tabela.contents if x != "\n"]
+
+        codigo_horario_atual = dados_linha[0].text.strip()
+        horario_inicial = dados_linha[1].text.strip()
+        horario_final = dados_linha[2].text.strip()
+
+        horarios_aula = linha_tabela.find_all("td") [1:]# array que armazena os horários de aula daquela linha; desconsiderando o primeiro td(é o código da aula. Ex: M1)
         
-        dados_disciplinas_matriculadas = {}
+        i = -1
 
-        # Esta primeira parte, extraimos os dados das disciplinas somente
-        for linha in linhas_tabela_disciplinas:
-            # Limpando os dados recebidos da tabela
-            # Esse comando pega todos os filhos da linha e remove somente as posições que tem a string "\n"
-            dados_linha = [item for item in linha.contents if item != "\n"]
+        for horario in horarios_aula:
+            i = i+1
+            try:
+                materia_atual,sala = [remove_bad_characters(x) for x in horario.text.split("/")]
 
-            dados_disciplina = {}
-            dados_disciplina["campus"] = dados_linha[0].text
-            dados_disciplina["codigo"] = dados_linha[1].text
-            dados_disciplina["nome"] = dados_linha[2].text
-            dados_disciplina["turma"] = dados_linha[3].text
-            dados_disciplina["enquadramento"] = dados_linha[4].text
-            dados_disciplina["horarios"] = []
-            dados_disciplinas_matriculadas[dados_disciplina["codigo"]] =  dados_disciplina
-        
-        # Realizando a busca na tabela de horários
-
-        # Considera todas as linhas da tabela de horário, exceto a primeira, porque ela
-        # possui apenas os dados do cabeçalho
-        linhas_tabela_horario = soap.find(id = "fshorarios_int").table.find_all("tr")[1:]
-
-        dias_semana = ["segunda", "terca", "quarta", "quinta", "sexta", "sabado"]
-
-        for linha_tabela in linhas_tabela_horario:
-            dados_linha = [x for x in linha_tabela.contents if x != "\n"]
-
-            codigo_horario_atual = dados_linha[0].text.strip()
-            horario_inicial = dados_linha[1].text.strip()
-            horario_final = dados_linha[2].text.strip()
-
-            horarios_aula = linha_tabela.find_all("td") [1:]# array que armazena os horários de aula daquela linha; desconsiderando o primeiro td(é o código da aula. Ex: M1)
-            
-            i = -1
-
-            for horario in horarios_aula:
-                i = i+1
-                try:
-                    turma,sala = [remove_bad_characters(x) for x in horario.text.split("/")]
-
-                    for materia in dados_disciplinas_matriculadas:
-                        # nota: o metodo find retorna a posição de onde a substring começa
-                        if turma.find(f"{materia}") >= 0:
-                            dados_disciplinas_matriculadas[materia]["horarios"].append({
-                                "codigo_horario": codigo_horario_atual,
-                                "inicio_aula": horario_inicial,
-                                "final_aula": horario_final,
-                                "dia_semana": dias_semana[i],
-                                "sala_aula": sala
-                            })
-                except ValueError:
-                    # Caso ocorra o ValueError, o campo do horário está vazio, ou seja, o aluno
-                    # não tem aula naquele dia e horário
-                    continue
-        return dados_disciplinas_matriculadas
+                for materia in dados_disciplinas_matriculadas:
+                    # nota: o metodo find retorna a posição de onde a substring começa
+                    # os seja, é verificado se o código da matéria está na materia_atual
+                    if materia_atual.find(f"{materia}") >= 0:
+                        
+                        dados_disciplinas_matriculadas[materia]["horarios"].append({
+                            "codigo_horario": codigo_horario_atual,
+                            "inicio_aula": horario_inicial,
+                            "final_aula": horario_final,
+                            "dia_semana": dias_semana[i],
+                            "sala_aula": sala
+                        })
+            except ValueError:
+                # Caso ocorra o ValueError, o campo do horário está vazio, ou seja, o aluno
+                # não tem aula naquele dia e horário
+                continue
+    return dados_disciplinas_matriculadas
 
 
 
