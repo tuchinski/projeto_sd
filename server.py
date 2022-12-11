@@ -1,6 +1,10 @@
 from flask import Flask, request, jsonify, abort
 from flask_caching import Cache
 import buscador
+from cryptography.fernet import Fernet
+
+# Minutos em que o token do cliente vai ficar disponível na cache
+TEMPO_LOGIN_CACHE = 30
 
 # Definindo o tipo do cache que será utilizado
 cache = Cache(config={'CACHE_TYPE': 'SimpleCache'})
@@ -9,6 +13,10 @@ app = Flask(__name__)
 
 # Iniciando o cacha
 cache.init_app(app)
+
+# configuração para guardar as senhas na cache de forma criptografada
+key = Fernet.generate_key()
+fernet = Fernet(key)
 
 # Método responsável por buscar o usuário e a senha do aluno na request
 def get_ra_password(headers) -> tuple:
@@ -28,7 +36,7 @@ def get_dados_boletim():
 
     # Caso encontre o usuário, e a senha seja a mesma, pega o token que já foi
     # previamente informado
-    if dados_cache and dados_cache["senha"] == senha:
+    if dados_cache and fernet.decrypt(dados_cache["senha"]).decode() == senha:
         token = dados_cache["token"]
         print(f"Achou na cache o usuário {usuario}")
     else:
@@ -37,11 +45,12 @@ def get_dados_boletim():
             # Tenta realizar o login no portal do aluno, com as informações passadas
             print(f"Não achou o usuário {usuario}, tentando realizar login para obter token")
             token = buscador.login(usuario, senha)
+            enc_senha = fernet.encrypt(senha.encode())
             cache.set(usuario, {
                 "usuario": usuario,
-                "senha": senha,
+                "senha": enc_senha,
                 "token": token
-            },timeout=60*10)
+            },timeout=60*TEMPO_LOGIN_CACHE)
         except buscador.LoginErrorException:
             abort(401)
     
@@ -61,14 +70,21 @@ def get_disciplinas_matriculadas():
 
     # Caso encontre o usuário, e a senha seja a mesma, pega o token que já foi
     # previamente informado
-    if dados_cache and dados_cache["senha"] == senha:
+    if dados_cache and fernet.decrypt(dados_cache["senha"]).decode() == senha:
         token = dados_cache["token"]
         print(f"Achou na cache o usuário {usuario}")
     else:
         # Caso não ache o usuário na cache, tenta fazer o login no portal do aluno
         try:
             # Tenta realizar o login no portal do aluno, com as informações passadas
+            print(f"Não achou o usuário {usuario}, tentando realizar login para obter token")
             token = buscador.login(usuario, senha)
+            enc_senha = fernet.encrypt(senha.encode())
+            cache.set(usuario, {
+                "usuario": usuario,
+                "senha": enc_senha,
+                "token": token
+            },timeout=60*TEMPO_LOGIN_CACHE)
         except buscador.LoginErrorException:
             abort(401)
         
