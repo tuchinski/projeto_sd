@@ -43,7 +43,7 @@ OPTIONS, TYPING_REPLY, TYPING_CHOICE, RA, SENHA, CHECK = range(6)
 reply_keyboard = [
     ["Boletim", "Disciplinas Matriculadas"],
     # ["Number of siblings", "Something else..."],
-    ["Done"],
+    ["Encerrar sessão"],
 ]
 markup = ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True)
 
@@ -164,11 +164,12 @@ async def buscando_dados_disciplinas(update: Update, context: ContextTypes.DEFAU
 async def done(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Display the gathered info and end the conversation."""
     user_data = context.user_data
-    if "choice" in user_data:
-        del user_data["choice"]
+    # if "choice" in user_data:
+    #     del user_data["choice"]
 
     await update.message.reply_text(
-        f"I learned these facts about you: {facts_to_str(user_data)}Until next time!",
+        # f"I learned these facts about you: {facts_to_str(user_data)}Until next time!",
+        "Fazendo logout...",
         reply_markup=ReplyKeyboardRemove(),
     )
 
@@ -220,7 +221,7 @@ def main() -> None:
                 )
             ]
         },
-        fallbacks=[MessageHandler(filters.Regex("^Done$"), done)],
+        fallbacks=[MessageHandler(filters.Regex("^Encerrar sessão$"), done)],
     )
 
     application.add_handler(conv_handler)
