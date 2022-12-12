@@ -1,0 +1,205 @@
+{
+	"info": {
+		"_postman_id": "81e0c330-91db-468a-bc02-71b087dcd1c4",
+		"name": "bot utf",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "8386811"
+	},
+	"item": [
+		{
+			"name": "Chamadas server",
+			"item": [
+				{
+					"name": "chamadas http",
+					"item": [
+						{
+							"name": "Boletim",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "user",
+										"value": "{{ra1}}",
+										"type": "text"
+									},
+									{
+										"key": "password",
+										"value": "{{senha1}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "http://localhost:8080/boletim",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"boletim"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Disciplinas Matriculadas",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "user",
+										"value": "{{ra}}",
+										"type": "text"
+									},
+									{
+										"key": "password",
+										"value": "{{senha}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "http://localhost:8080/disciplinas",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"disciplinas"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Validar Credenciais",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "user",
+										"value": "{{ra}}",
+										"type": "text"
+									},
+									{
+										"key": "password",
+										"value": "{{senha}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "http://localhost:8080/validaCredenciais",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"validaCredenciais"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "chamadas https",
+					"item": [
+						{
+							"name": "Boletim",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "user",
+										"value": "{{ra1}}",
+										"type": "text"
+									},
+									{
+										"key": "password",
+										"value": "{{senha1}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "https://localhost:8080/boletim",
+									"protocol": "https",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"boletim"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Disciplinas Matriculadas",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "user",
+										"value": "{{ra}}",
+										"type": "text"
+									},
+									{
+										"key": "password",
+										"value": "{{senha}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "https://localhost:8080/disciplinas",
+									"protocol": "https",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"disciplinas"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Validar Credenciais",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "user",
+										"value": "{{ra}}",
+										"type": "text"
+									},
+									{
+										"key": "password",
+										"value": "{{senha}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "https://localhost:8080/validaCredenciais",
+									"protocol": "https",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"validaCredenciais"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		}
+	]
+}
