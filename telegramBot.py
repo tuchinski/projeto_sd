@@ -71,6 +71,10 @@ async def recebendo_ra(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
 
     return SENHA
 
+def credenciais(context: ContextTypes.DEFAULT_TYPE):
+    return context.user_data["ra"], context.user_data["senha"]
+
+
 async def recebendo_senha(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     text = update.message.text
     context.user_data["senha"] = text
@@ -101,53 +105,59 @@ async def analisando_credenciais(update: Update, context: ContextTypes.DEFAULT_T
 
     return OPTIONS
 
-# async def regular_choice(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-#     """Ask the user for info about the selected predefined choice."""
-#     text = update.message.text
-#     context.user_data["choice"] = text
-#     await update.message.reply_text(f"Your {text.lower()}? Yes, I would love to hear about that!")
-
-#     return TYPING_REPLY
-
-
-# async def custom_choice(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-#     """Ask the user for a description of a custom category."""
-#     await update.message.reply_text(
-#         'Alright, please send me the category first, for example "Most impressive skill"'
-#     )
-
-#     return TYPING_CHOICE
-
-
-# async def received_information(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-#     """Store info provided by user and ask for the next category."""
-#     user_data = context.user_data
-#     text = update.message.text
-#     category = user_data["choice"]
-#     user_data[category] = text
-#     del user_data["choice"]
-
-#     await update.message.reply_text(
-#         "Neat! Just so you know, this is what you already told me:"
-#         f"{facts_to_str(user_data)}You can tell me more, or change your opinion"
-#         " on something.",
-#         reply_markup=markup,
-#     )
-
-#     return OPTIONS
-
 async def selecionando_opcao(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     await update.message.reply_text("Selecione qual opção você deseja")
 
     return OPTIONS
 
 async def buscando_dados_boletim(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    await update.message.reply_text("Dados do boletim")
+    ra,senha = credenciais(context)
+    url = "http://localhost:8080/boletim"
+    requestHeaders = {
+        "user": ra,
+        "password": senha
+    }
+    response = requests.get(url, headers= requestHeaders)
+    responseBody = response.json()
+    responseAluno = "Aqui está seu boletim\n"
+
+    for boletim in responseBody:
+        responseAluno = responseAluno + "\n=========================\n"
+        responseAluno = responseAluno + "Campus: {}\n".format(boletim["campus"])
+        responseAluno = responseAluno + "Disciplina: {}\n".format(boletim["nome"])
+        responseAluno = responseAluno + "Código: {}\n".format(boletim["codigo"])
+        responseAluno = responseAluno + "turma: {}\n".format(boletim["turma"])
+        responseAluno = responseAluno + "Faltas: {}\n".format(boletim["faltas"])
+        responseAluno = responseAluno + "Percentual de frequência: {}\n".format(boletim["percentual_presenca"])
+        responseAluno = responseAluno + "Limite de faltas: {}\n".format(boletim["limite_faltas"])
+        responseAluno = responseAluno + "Média final: {}\n".format(boletim["media_final"])
+        responseAluno = responseAluno + "Média parcial: {}\n".format(boletim["media_parcial"])
+        
+    await update.message.reply_text(responseAluno)
 
     return OPTIONS
 
 async def buscando_dados_disciplinas(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    await update.message.reply_text("Dados das disciplinas")
+    ra,senha = credenciais(context)
+    url = "http://localhost:8080/disciplinas"
+    requestHeaders = {
+        "user": ra,
+        "password": senha
+    }
+
+    response = requests.get(url, headers= requestHeaders, timeout=10)
+    responseBody = response.json()
+    responseAluno = "Aqui está suas disciplinas\n"
+
+    for materia in responseBody:
+        responseAluno = responseAluno + "\n=========================\n"
+        responseAluno = responseAluno + "Disciplina: {}\n".format(responseBody[materia]["nome"])
+
+        for horarios in responseBody[materia]["horarios"]:
+            responseAluno = responseAluno + "{} - {} sala {}\n".format(horarios["inicio_aula"],horarios["final_aula"], horarios["sala_aula"])
+
+    await update.message.reply_text(responseAluno)    
+
 
     return OPTIONS
 
