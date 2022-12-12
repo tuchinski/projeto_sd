@@ -199,3 +199,22 @@ def busca_disciplinas_matriculadas(ra: str, token_aluno: str):
                 # não tem aula naquele dia e horário
                 continue
     return dados_disciplinas_matriculadas
+
+def busca_disciplinas_dia(ra, token, dia_semana):
+    # parametro dia_semana é um inteiro de 0->5, onde 0 = segunda, 1 = terca, etc...
+    # dias_semana = ["segunda", "terca", "quarta", "quinta", "sexta", "sabado"]
+    todas_disciplinas = busca_disciplinas_matriculadas(ra, token)
+
+    disciplinas_dia = []
+
+    for disciplina in todas_disciplinas:
+        for horario in todas_disciplinas[disciplina]["horarios"]:
+            if horario["dia_semana"] == dia_semana:
+                disciplinas_dia.append({
+                    "nome": todas_disciplinas[disciplina]["nome"],
+                    "sala": horario["sala_aula"],
+                    "inicio_aula": horario["inicio_aula"],
+                    "final_aula": horario["final_aula"]
+                })
+    
+    return disciplinas_dia

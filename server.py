@@ -138,5 +138,40 @@ def valida_credenciais_aluno():
         "codigo": 200
     })
 
+@app.route("/disciplinas/<dia_semana>")
+def busca_disciplinas_dia(dia_semana):
+    usuario, senha = get_ra_password(request.headers)
+    if usuario == None or senha == None:
+        abort(400)
+    
+    dados_cache = cache.get(usuario)
+
+    if dados_cache and fernet.decrypt(dados_cache["senha"]).decode() == senha:
+        token = dados_cache["token"]
+        print(f"Achou na cache o usuário {usuario}")
+    else:
+        # Caso não ache o usuário na cache, tenta fazer o login no portal do aluno
+        try:
+            # Tenta realizar o login no portal do aluno, com as informações passadas
+            print(f"Não achou o usuário {usuario}, tentando realizar login para obter token")
+            token = buscador.login(usuario, senha)
+            enc_senha = fernet.encrypt(senha.encode())
+            cache.set(usuario, {
+                "usuario": usuario,
+                "senha": enc_senha,
+                "token": token
+            },timeout=60*TEMPO_LOGIN_CACHE)
+        except buscador.LoginErrorException:
+            abort(401)
+    
+    try:
+        dados_retorno = buscador.busca_disciplinas_dia(usuario, token, dia_semana)
+        return jsonify(dados_retorno)
+    except Exception:
+        return jsonify({
+            "codigo": 500,
+            "mensagem": "Erro interno no servidor"
+        }), 500
+
 if __name__ == '__main__':
    app.run("127.0.0.1","8080", True)
