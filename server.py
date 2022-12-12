@@ -58,12 +58,12 @@ def get_dados_boletim():
         retorno = buscador.busca_boletim(usuario,token)
     except buscador.InternalServerErrorException as e:
         return jsonify({
-            "erro": e.codigo,
+            "codigo": e.codigo,
             "mensagem": e.descricao
         }),500
     except Exception:
         return jsonify({
-            "erro": 500,
+            "codigo": 500,
             "mensagem": "Erro interno no servidor"
         }), 500
 
@@ -109,11 +109,34 @@ def get_disciplinas_matriculadas():
         }),500
     except Exception:
         return jsonify({
-            "erro": 500,
+            "codigo": 500,
             "mensagem": "Erro interno no servidor"
         }), 500
 
+@app.route("/validaCredenciais", methods = ["GET"]) 
+def valida_credenciais_aluno():
+    usuario, senha = get_ra_password(request.headers)
+    if usuario == None or senha == None:
+        abort(400)
     
+    try:
+        token = buscador.login(usuario, senha)
+    except buscador.LoginErrorException as e:
+        return jsonify({
+            "codigo": 401,
+            "mensagem": "RA e/ou senha incorretos"
+        }), 401
+        
+    enc_senha = fernet.encrypt(senha.encode())
+    cache.set(usuario, {
+        "usuario": usuario,
+        "senha": enc_senha,
+        "token": token
+    },timeout=60*TEMPO_LOGIN_CACHE)
+    return jsonify({
+        "mensagem": "Sucesso ao validar as credenciais",
+        "codigo": 200
+    })
 
 if __name__ == '__main__':
    app.run("127.0.0.1","8080", True)
