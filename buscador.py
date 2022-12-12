@@ -9,6 +9,11 @@ class LoginErrorException(Exception):
         self.descricao = descricao
         super().__init__(self.descricao)
 
+class InternalServerErrorException(Exception):
+    def __init__(self, codigo, descricao):
+        self.codigo = codigo
+        self.descricao = descricao
+        super().__init__(self.descricao)
 # Metodo que realiza o login no Portal do aluno
 def login(ra: str, senha: str):
     URL_LOGIN = "https://sistemas2.utfpr.edu.br/utfpr-auth/api/v1/"
@@ -42,6 +47,9 @@ def busca_boletim(ra: str, token_aluno: str):
     }
 
     response = requests.get(URL_BOLETIM, headers=headers_request)
+
+    if response.status_code != 200:
+        raise InternalServerErrorException(500, "Erro ao realizar a consulta no portal do aluno")
     soap = BeautifulSoup(response.text, "html.parser")
 
     # Realizando extração dos dados do boletim
@@ -99,6 +107,9 @@ def busca_disciplinas_matriculadas(ra: str, token_aluno: str):
     }
 
     response = requests.get(URL_DISCIPLINAS, headers=headers_request)
+    
+    if response.status_code != 200:
+        raise InternalServerErrorException(500, "Erro ao realizar a consulta no portal do aluno")
 
     soap = BeautifulSoup(response.text, "html.parser")
 

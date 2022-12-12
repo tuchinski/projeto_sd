@@ -54,7 +54,18 @@ def get_dados_boletim():
         except buscador.LoginErrorException:
             abort(401)
     
-    retorno = buscador.busca_boletim(usuario,token)
+    try:
+        retorno = buscador.busca_boletim(usuario,token)
+    except buscador.InternalServerErrorException as e:
+        return jsonify({
+            "erro": e.codigo,
+            "mensagem": e.descricao
+        }),500
+    except Exception:
+        return jsonify({
+            "erro": 500,
+            "mensagem": "Erro interno no servidor"
+        }), 500
 
     return jsonify(retorno)
 
@@ -88,9 +99,20 @@ def get_disciplinas_matriculadas():
         except buscador.LoginErrorException:
             abort(401)
         
-    retorno = buscador.busca_disciplinas_matriculadas(usuario,token)
+    try:
+        retorno = buscador.busca_disciplinas_matriculadas(usuario,token)
+        return jsonify(retorno)
+    except buscador.InternalServerErrorException as e:
+        return jsonify({
+            "erro": e.codigo,
+            "mensagem": e.descricao
+        }),500
+    except Exception:
+        return jsonify({
+            "erro": 500,
+            "mensagem": "Erro interno no servidor"
+        }), 500
 
-    return jsonify(retorno)
     
 
 if __name__ == '__main__':
