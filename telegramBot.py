@@ -3,6 +3,7 @@ import os
 import logging
 import requests
 import json
+from datetime import date 
 
 from typing import Dict
 from telegram import __version__ as TG_VER
@@ -38,11 +39,11 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-OPTIONS, TYPING_REPLY, TYPING_CHOICE, RA, SENHA, CHECK = range(6)
+OPTIONS, RA, PASSWD, CHECK = range(4)
 
 reply_keyboard = [
     ["Boletim", "Disciplinas Matriculadas"],
-    # ["Number of siblings", "Something else..."],
+    ["Disciplinas do dia"],
     ["Encerrar sessão"],
 ]
 markup = ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True)
@@ -57,8 +58,8 @@ def facts_to_str(user_data: Dict[str, str]) -> str:
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Start the conversation and ask user for input."""
     await update.message.reply_text(
-        "Oi, Sou o bot da UTF! "
-        "Primeiramente, digite seu RA.",
+        "Olá!! Sou o bot da UTFPR Campus Campo Mourão. "
+        "Primeiramente, digite seu RA com a letra 'a'. Ex: a12345.",
         reply_markup=ReplyKeyboardRemove()
     )
     return RA
@@ -69,7 +70,7 @@ async def recebendo_ra(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
     
     await update.message.reply_text(f"Ok!. Agora digite sua senha")
 
-    return SENHA
+    return PASSWD
 
 def credenciais(context: ContextTypes.DEFAULT_TYPE):
     return context.user_data["ra"], context.user_data["senha"]
@@ -99,14 +100,30 @@ async def recebendo_senha(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         await update.message.reply_text("Primeiramente, digite seu RA.")
         return RA
 
-    
-async def analisando_credenciais(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    await update.message.reply_text("Login efetuado com sucesso")
+async def buscando_disciplina_dia(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    nomes = ("segunda", "terca", "quarta", "quinta", "sexta", "sabado", "domingo")
+    dia_semana = date.today().weekday()
+    ra,senha = credenciais(context)
+    url = f"http://localhost:8080/disciplinas/{nomes[dia_semana]}"
+    requestHeaders = {
+        "user": ra,
+        "password": senha
+    }
+    response = requests.get(url, headers= requestHeaders)
+    responseBody = response.json()
+    if not responseBody:
+        await update.message.reply_text("Hoje você não tem aula")
+    else:
+        responseAluno = "Aqui está sua aula do dia\n"
 
-    return OPTIONS
+        for disciplina in responseBody:
+            responseAluno = responseAluno + "\n=========================\n"
+            responseAluno = responseAluno + "Disciplina: {}\n".format(disciplina["nome"])
+            responseAluno = responseAluno + "Sala: {}\n".format(disciplina["sala"])
+            responseAluno = responseAluno + "Início da aula: {}\n".format(disciplina["inicio_aula"])
+            responseAluno = responseAluno + "Final da aula: {}\n".format(disciplina["final_aula"])
 
-async def selecionando_opcao(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    await update.message.reply_text("Selecione qual opção você deseja")
+        await update.message.reply_text(responseAluno)  
 
     return OPTIONS
 
@@ -193,6 +210,9 @@ def main() -> None:
                 MessageHandler(
                     filters.Regex("^(Disciplinas Matriculadas)$"), buscando_dados_disciplinas
                 ), 
+                MessageHandler(
+                    filters.Regex("^(Disciplinas do dia)$"), buscando_disciplina_dia
+                ),
             ],
             # TYPING_CHOICE: [
             #     MessageHandler(
@@ -210,16 +230,11 @@ def main() -> None:
                     filters.TEXT, recebendo_ra
                 )
             ],
-            SENHA: [
+            PASSWD: [
                 MessageHandler(
                     filters.TEXT, recebendo_senha
                 )
             ],
-            CHECK: [
-                MessageHandler(
-                    filters.TEXT, selecionando_opcao
-                )
-            ]
         },
         fallbacks=[MessageHandler(filters.Regex("^Encerrar sessão$"), done)],
     )
