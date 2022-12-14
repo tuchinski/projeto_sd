@@ -49,12 +49,12 @@
 								"header": [
 									{
 										"key": "user",
-										"value": "{{ra}}",
+										"value": "{{ra1}}",
 										"type": "text"
 									},
 									{
 										"key": "password",
-										"value": "{{senha}}",
+										"value": "{{senha1}}",
 										"type": "text"
 									}
 								],
@@ -97,6 +97,37 @@
 									"port": "8080",
 									"path": [
 										"validaCredenciais"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Disciplinas Dia",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "user",
+										"value": "{{ra1}}",
+										"type": "text"
+									},
+									{
+										"key": "password",
+										"value": "{{senha1}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "http://localhost:8080/disciplinas/terca",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"disciplinas",
+										"terca"
 									]
 								}
 							},
@@ -192,6 +223,37 @@
 									"port": "8080",
 									"path": [
 										"validaCredenciais"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Disciplinas Dia",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "user",
+										"value": "{{ra1}}",
+										"type": "text"
+									},
+									{
+										"key": "password",
+										"value": "{{senha1}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "https://localhost:8080/disciplinas/domingo",
+									"protocol": "https",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"disciplinas",
+										"domingo"
 									]
 								}
 							},
