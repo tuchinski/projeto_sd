@@ -131,8 +131,6 @@ async def recebendo_senha(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
 
 async def buscando_disciplina_dia(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Método que responde a solicitação de busca das disciplinas do dia"""
-    # tupla com os dias da semana para mapeamento
-    # nomes = ("segunda", "terca", "quarta", "quinta", "sexta", "sabado", "domingo")
     
     # Descobrindo qual dia da semana é hoje
     dia_semana = date.today().weekday()
