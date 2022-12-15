@@ -1,7 +1,9 @@
-from flask import Flask, request, jsonify, abort
+from flask import Flask, request, jsonify, abort, has_request_context
 from flask_caching import Cache
 import buscador
 from cryptography.fernet import Fernet
+from flask.logging import default_handler
+import logging
 
 # Minutos em que o token do cliente vai ficar disponível na cache
 TEMPO_LOGIN_CACHE = 30
@@ -10,6 +12,22 @@ TEMPO_LOGIN_CACHE = 30
 cache = Cache(config={'CACHE_TYPE': 'SimpleCache'})
 
 app = Flask(__name__)
+class RequestFormatter(logging.Formatter):
+    def format(self, record):
+        if has_request_context():
+            record.url = request.url
+            record.remote_addr = request.remote_addr
+        else:
+            record.url = None
+            record.remote_addr = None
+
+        return super().format(record)
+
+formatter = RequestFormatter(
+    '[%(asctime)s] %(remote_addr)s requested %(url)s\n'
+    '%(levelname)s in %(module)s: %(message)s'
+)
+default_handler.setFormatter(formatter)
 
 # Iniciando o cacha
 cache.init_app(app)
