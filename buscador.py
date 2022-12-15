@@ -142,7 +142,7 @@ def busca_disciplinas_matriculadas(ra: str, token_aluno: str):
     # possui apenas os dados do cabeçalho
     linhas_tabela_horario = soap.find(id = "fshorarios_int").table.find_all("tr")[1:]
 
-    dias_semana = ["segunda", "terca", "quarta", "quinta", "sexta", "sabado"]
+    dias_semana = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"]
 
    # Iterando para cada linha da tabela
     for linha_tabela in linhas_tabela_horario:

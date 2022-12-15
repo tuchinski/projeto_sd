@@ -11,6 +11,7 @@ from telegram import __version__ as TG_VER
 load_dotenv()
 
 TOKEN = os.getenv("API_KEY")
+BASE_URL = os.getenv("base_url")
 
 try:
     from telegram import __version_info__
@@ -86,7 +87,7 @@ async def recebendo_senha(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
     ra = context.user_data["ra"]
     senha = context.user_data["senha"]
     await update.message.reply_text(f"aguarde um pouco enquanto verifico seus dados no servidor")
-    url = "http://localhost:8080/validaCredenciais"
+    url = f"{BASE_URL}/validaCredenciais"
     requestHeaders = {
         "user": ra,
         "password": senha
@@ -116,7 +117,7 @@ async def buscando_disciplina_dia(update: Update, context: ContextTypes.DEFAULT_
     ra,senha = credenciais(context)
 
     # realizando a request para buscar as disciplinas do dia
-    url = f"http://localhost:8080/disciplinas/{nomes[dia_semana]}"
+    url = f"{BASE_URL}/disciplinas/{nomes[dia_semana]}"
     requestHeaders = {
         "user": ra,
         "password": senha
@@ -147,7 +148,7 @@ async def buscando_dados_boletim(update: Update, context: ContextTypes.DEFAULT_T
 
     # Realizando a request
     ra,senha = credenciais(context)
-    url = "http://localhost:8080/boletim"
+    url = f"{BASE_URL}/boletim"
     requestHeaders = {
         "user": ra,
         "password": senha
@@ -178,7 +179,7 @@ async def buscando_dados_disciplinas(update: Update, context: ContextTypes.DEFAU
     
     # Realizando a request
     ra,senha = credenciais(context)
-    url = "http://localhost:8080/disciplinas"
+    url = f"{BASE_URL}/disciplinas"
     requestHeaders = {
         "user": ra,
         "password": senha
@@ -187,6 +188,14 @@ async def buscando_dados_disciplinas(update: Update, context: ContextTypes.DEFAU
     response = requests.get(url, headers= requestHeaders, timeout=10)
     responseBody = response.json()
     responseAluno = "Aqui está suas disciplinas\n"
+    # dias_semana = {
+    #     "segunda" : "Segunda",
+    #     "terca" : "Terça",
+    #     "quarta" : "Quarta",
+    #     "quinta" : "Quinta",
+    #     "sexta" : "Sexta",
+    #     "sabado" : "Sábado"
+    # }
 
     for materia in responseBody:
         # Formatando os dados
@@ -194,7 +203,7 @@ async def buscando_dados_disciplinas(update: Update, context: ContextTypes.DEFAU
         responseAluno = responseAluno + "Disciplina: {}\n".format(responseBody[materia]["nome"])
 
         for horarios in responseBody[materia]["horarios"]:
-            responseAluno = responseAluno + "{} - {} sala {}\n".format(horarios["inicio_aula"],horarios["final_aula"], horarios["sala_aula"])
+            responseAluno = responseAluno + "{} -> {} - {} sala {}\n".format(horarios["dia_semana"], horarios["inicio_aula"],horarios["final_aula"], horarios["sala_aula"])
 
     await update.message.reply_text(responseAluno)    
 
