@@ -2,12 +2,12 @@ from dotenv import load_dotenv
 import os
 import logging
 import requests
-import json
 from datetime import date 
 
 from typing import Dict
 from telegram import __version__ as TG_VER
 
+# carregando dados do .env
 load_dotenv()
 
 TOKEN = os.getenv("API_KEY")
@@ -39,8 +39,10 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# estados do Bot
 OPTIONS, RA, PASSWD, CHECK = range(4)
 
+# Teclado com as opções do bot
 reply_keyboard = [
     ["Boletim", "Disciplinas Matriculadas"],
     ["Disciplinas do dia"],
@@ -49,14 +51,8 @@ reply_keyboard = [
 markup = ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True)
 
 
-def facts_to_str(user_data: Dict[str, str]) -> str:
-    """Helper function for formatting the gathered user info."""
-    facts = [f"{key} - {value}" for key, value in user_data.items()]
-    return "\n".join(facts).join(["\n", "\n"])
-
-
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Start the conversation and ask user for input."""
+    """Inicia a conversa com o aluno"""
     await update.message.reply_text(
         "Olá!! Sou o bot da UTFPR Campus Campo Mourão. "
         "Primeiramente, digite seu RA com a letra 'a'. Ex: a12345.",
@@ -65,6 +61,9 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     return RA
 
 async def recebendo_ra(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Método que trata quando o aluno envia os RA"""
+    
+    # Recebe o RA e guarda no user_data
     text = update.message.text
     context.user_data["ra"] = text
     
@@ -73,27 +72,34 @@ async def recebendo_ra(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
     return PASSWD
 
 def credenciais(context: ContextTypes.DEFAULT_TYPE):
+    """Retorna as credenciais do usuário, salvas no user_data"""
     return context.user_data["ra"], context.user_data["senha"]
 
 
 async def recebendo_senha(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Recebendo a senha do usuário, e armazenando no user_data"""
+    # Guardando a senha do usuário no user_data
     text = update.message.text
     context.user_data["senha"] = text
+    
+    # Buscando RA e senha para fazer a validação das credenciais
     ra = context.user_data["ra"]
     senha = context.user_data["senha"]
-    # await update.message.reply_text(f"Ok, o RA informado foi {ra} e a senha foi {senha}",reply_markup=markup)
     await update.message.reply_text(f"aguarde um pouco enquanto verifico seus dados no servidor")
     url = "http://localhost:8080/validaCredenciais"
     requestHeaders = {
         "user": ra,
         "password": senha
     }
+    # Realizando a request para validar as credenciais
     response = requests.get(url, headers= requestHeaders)
     if response.status_code == 200:
+        # Caso sucesso, informa o aluno e vai para o estado OPTIONS
         await update.message.reply_text("Login efetuado com sucesso")
         await update.message.reply_text("Selecione qual opção você deseja", reply_markup=markup)
         return OPTIONS
     else:
+        # Caso erro, informa o aluno e volta para o estado RA, para digitar novamente o RA e senha
         responseBody = response.json()
         await update.message.reply_text(responseBody["mensagem"])
         await update.message.reply_text("Tente fazer o login novamente")
@@ -101,19 +107,28 @@ async def recebendo_senha(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         return RA
 
 async def buscando_disciplina_dia(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Método que responde a solicitação de busca das disciplinas do dia"""
+    # tupla com os dias da semana para mapeamento
     nomes = ("segunda", "terca", "quarta", "quinta", "sexta", "sabado", "domingo")
+    
+    # Descobrindo qual dia da semana é hoje
     dia_semana = date.today().weekday()
     ra,senha = credenciais(context)
+
+    # realizando a request para buscar as disciplinas do dia
     url = f"http://localhost:8080/disciplinas/{nomes[dia_semana]}"
     requestHeaders = {
         "user": ra,
         "password": senha
     }
     response = requests.get(url, headers= requestHeaders)
+
+    # Caso o aluno não tenha aula, o retorno será um array vazio
     responseBody = response.json()
     if not responseBody:
         await update.message.reply_text("Hoje você não tem aula")
     else:
+        # Formatando os dados para retornar para o aluno
         responseAluno = "Aqui está sua aula do dia\n"
 
         for disciplina in responseBody:
@@ -128,6 +143,9 @@ async def buscando_disciplina_dia(update: Update, context: ContextTypes.DEFAULT_
     return OPTIONS
 
 async def buscando_dados_boletim(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Método que responde a solicitação de busca de dados do boletim"""
+
+    # Realizando a request
     ra,senha = credenciais(context)
     url = "http://localhost:8080/boletim"
     requestHeaders = {
@@ -139,6 +157,7 @@ async def buscando_dados_boletim(update: Update, context: ContextTypes.DEFAULT_T
     responseAluno = "Aqui está seu boletim\n"
 
     for boletim in responseBody:
+        # Formatando os dados
         responseAluno = responseAluno + "\n=========================\n"
         responseAluno = responseAluno + "Campus: {}\n".format(boletim["campus"])
         responseAluno = responseAluno + "Disciplina: {}\n".format(boletim["nome"])
@@ -155,6 +174,9 @@ async def buscando_dados_boletim(update: Update, context: ContextTypes.DEFAULT_T
     return OPTIONS
 
 async def buscando_dados_disciplinas(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Método que responde a solicitação de busca dados das disciplinas"""
+    
+    # Realizando a request
     ra,senha = credenciais(context)
     url = "http://localhost:8080/disciplinas"
     requestHeaders = {
@@ -167,6 +189,7 @@ async def buscando_dados_disciplinas(update: Update, context: ContextTypes.DEFAU
     responseAluno = "Aqui está suas disciplinas\n"
 
     for materia in responseBody:
+        # Formatando os dados
         responseAluno = responseAluno + "\n=========================\n"
         responseAluno = responseAluno + "Disciplina: {}\n".format(responseBody[materia]["nome"])
 
@@ -179,13 +202,10 @@ async def buscando_dados_disciplinas(update: Update, context: ContextTypes.DEFAU
     return OPTIONS
 
 async def done(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Display the gathered info and end the conversation."""
+    """Metodo que finaliza a conversa do bot com o aluno"""
     user_data = context.user_data
-    # if "choice" in user_data:
-    #     del user_data["choice"]
 
     await update.message.reply_text(
-        # f"I learned these facts about you: {facts_to_str(user_data)}Until next time!",
         "Fazendo logout...",
         reply_markup=ReplyKeyboardRemove(),
     )
@@ -196,10 +216,10 @@ async def done(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 
 def main() -> None:
     """Run the bot."""
-    # Create the Application and pass it your bot's token.
+    # Cria a aplicação e passa o token do bot como parâmetro
     application = Application.builder().token(TOKEN).build()
 
-    # Add conversation handler with the states CHOOSING, TYPING_CHOICE and TYPING_REPLY
+    # Adiciona os handlers para as mensagens recebidas
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler("start", start)],
         states={
@@ -214,17 +234,6 @@ def main() -> None:
                     filters.Regex("^(Disciplinas do dia)$"), buscando_disciplina_dia
                 ),
             ],
-            # TYPING_CHOICE: [
-            #     MessageHandler(
-            #         filters.TEXT & ~(filters.COMMAND | filters.Regex("^Done$")), regular_choice
-            #     )
-            # ],
-            # TYPING_REPLY: [
-            #     MessageHandler(
-            #         filters.TEXT & ~(filters.COMMAND | filters.Regex("^Done$")),
-            #         received_information,
-            #     )
-            # ],
             RA: [
                 MessageHandler(
                     filters.TEXT, recebendo_ra
