@@ -138,8 +138,13 @@ def valida_credenciais_aluno():
         "codigo": 200
     })
 
-@app.route("/disciplinas/<dia_semana>")
-def busca_disciplinas_dia(dia_semana):
+@app.route("/disciplinas/<int:dia_semana>")
+def busca_disciplinas_dia(dia_semana:int):
+    if dia_semana > 6:
+        return jsonify({
+            "codigo": 400,
+            "mensagem": "Valor do dia da semana inválido"
+        }),400
     usuario, senha = get_ra_password(request.headers)
     if usuario == None or senha == None:
         abort(400)

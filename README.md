@@ -189,7 +189,7 @@ Bot para consulta de informações no portal do aluno da UTFPR, para matéria de
 
   - Parâmetros da requisição
 
-    - `dia_semana`: dia da semana em que se deseja saber as aulas
+    - `dia_semana`: dia da semana em que se deseja saber as aulas, sendo um valor inteiro, onde 0 -> segunda, 1-> terça, etc...
 
   - Cabeçalho da requisição: 
 
@@ -220,6 +220,7 @@ Bot para consulta de informações no portal do aluno da UTFPR, para matéria de
   - Erros
 
     - Caso o RA e/ou senha estiverem incorretos, será retornado um status code 401
+    - Caso o valor do dia da semana ultrapasse 6, será retornado um erro 400.
 
 ## Servidor de requisições do telegram
 
