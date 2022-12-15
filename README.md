@@ -29,6 +29,8 @@ Bot para consulta de informações no portal do aluno da UTFPR, para matéria de
   - Busca as disciplinas matriculadas do aluno, juntamente com os horários da aula. Utiliza o token gerado na requisição de login para autenticação no portal do aluno.
 - Boletim
   - Busca os dados do boletim do aluno, com os seguntes dados: matéria, número de faltas, limite máximo de faltas, porcentagem e frequência. Utiliza o token gerado na requisição de login para autenticação no portal do aluno.
+- Busca Disciplinas Dia
+  - Busca as disciplinas que o aluno terá no dia, usando como base a busca realizada nas disciplinas matriculadas
 
 ##  Servidor de requisições
 
@@ -227,3 +229,16 @@ Bot para consulta de informações no portal do aluno da UTFPR, para matéria de
 - Esta aplicação ficará responsável por tratar as requisições recebidas do telegram, e respondê-las da forma correta.
 
 - Receber, tratar e responder as requisições do telegram.
+
+# Execução do projeto
+- Para executar o projeto é necessário ter instalado na máquina, o Python igual ou superior a versão 3.x.x
+- A versão utilizada para nossos testes, foi a 3.8.9
+- Recomendamos também que o projeto seja executado dentro de um ambiente virtual do python(virtualenv)
+  - Para realizar sua instalação, verifique o seguinte link: https://virtualenv.pypa.io/en/latest/installation.html
+- Para instalarmos as dependências necessárias, iremos utilizar o PIP(gerenciador de pacotes)
+  - Para instalar as dependências basta executar o comando
+    ```pip install -r requirements.txt```
+- Assim que o comando finalizar, todos os pacotes necessários para o projeto estarão instalados
+- Agora os programas podem ser executados com os seguintes comandos(utilizar terminais diferentes para cada comando):
+```python server.py```
+```python telegramBot.py```
