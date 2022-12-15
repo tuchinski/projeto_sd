@@ -197,4 +197,4 @@ def busca_disciplinas_dia(dia_semana:int):
         }), 500
 
 if __name__ == '__main__':
-   app.run("127.0.0.1","8080", True)
+   app.run("127.0.0.1","8080", True, ssl_context='adhoc')

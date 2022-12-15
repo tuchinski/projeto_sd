@@ -107,7 +107,7 @@ async def recebendo_senha(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
     }
     # Realizando a request para validar as credenciais
     try:
-        response = requests.get(url, headers=requestHeaders)
+        response = requests.get(url, headers=requestHeaders, verify=False, timeout=10)
     except Exception as e:
         print("Erro ao realizar a request")
         print(e)
@@ -142,7 +142,13 @@ async def buscando_disciplina_dia(update: Update, context: ContextTypes.DEFAULT_
         "user": ra,
         "password": senha
     }
-    response = requests.get(url, headers= requestHeaders)
+    try:
+        response = requests.get(url, headers= requestHeaders, verify=False, timeout=10)
+    except Exception as e:
+        print("Erro ao realizar a request")
+        print(e)
+        await update.message.reply_text("Ops.. Não deu pra fazer sua requisição, tente novamente.")
+        return OPTIONS
 
     # Caso o aluno não tenha aula, o retorno será um array vazio
     responseBody = response.json()
@@ -173,7 +179,14 @@ async def buscando_dados_boletim(update: Update, context: ContextTypes.DEFAULT_T
         "user": ra,
         "password": senha
     }
-    response = requests.get(url, headers= requestHeaders)
+    try:
+        response = requests.get(url, headers= requestHeaders, verify=False, timeout=10)
+    except Exception as e:
+        print("Erro ao realizar a request")
+        print(e)
+        await update.message.reply_text("Ops.. Não deu pra fazer sua requisição, tente novamente.")
+        return OPTIONS
+
     responseBody = response.json()
     responseAluno = "Aqui está seu boletim\n"
 
@@ -205,7 +218,13 @@ async def buscando_dados_disciplinas(update: Update, context: ContextTypes.DEFAU
         "password": senha
     }
 
-    response = requests.get(url, headers= requestHeaders, timeout=10)
+    try:
+        response = requests.get(url, headers= requestHeaders, timeout=10, verify=False)
+    except Exception as e:
+        print("Erro ao realizar a request")
+        print(e)
+        await update.message.reply_text("Ops.. Não deu pra fazer sua requisição, tente novamente.")
+        return OPTIONS
     responseBody = response.json()
     responseAluno = "Aqui está suas disciplinas\n"
 
