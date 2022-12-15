@@ -3,6 +3,7 @@ import os
 import logging
 import requests
 from datetime import date 
+from cryptography.fernet import Fernet
 
 from typing import Dict
 from telegram import __version__ as TG_VER
@@ -52,6 +53,16 @@ reply_keyboard = [
 markup = ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True)
 
 
+def decript_senha(senha_encript:bytes)->str:
+    """Descriptografa a senha"""
+    fernet = Fernet(os.getenv("key_bot"))
+    return fernet.decrypt(senha_encript).decode()
+
+def encript_senha(senha:str) -> bytes:
+    """Encripta a senha"""
+    fernet = Fernet(os.getenv("key_bot"))
+    return fernet.encrypt(senha.encode())
+
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Inicia a conversa com o aluno"""
     await update.message.reply_text(
@@ -74,18 +85,20 @@ async def recebendo_ra(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
 
 def credenciais(context: ContextTypes.DEFAULT_TYPE):
     """Retorna as credenciais do usuário, salvas no user_data"""
-    return context.user_data["ra"], context.user_data["senha"]
+    # return context.user_data["ra"], context.user_data["senha"]
+    return context.user_data["ra"], decript_senha(context.user_data["senha"])
+
 
 
 async def recebendo_senha(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Recebendo a senha do usuário, e armazenando no user_data"""
     # Guardando a senha do usuário no user_data
     text = update.message.text
-    context.user_data["senha"] = text
+    context.user_data["senha"] = encript_senha(text)
     
     # Buscando RA e senha para fazer a validação das credenciais
     ra = context.user_data["ra"]
-    senha = context.user_data["senha"]
+    senha = text
     await update.message.reply_text(f"aguarde um pouco enquanto verifico seus dados no servidor")
     url = f"{BASE_URL}/validaCredenciais"
     requestHeaders = {
@@ -93,7 +106,16 @@ async def recebendo_senha(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         "password": senha
     }
     # Realizando a request para validar as credenciais
-    response = requests.get(url, headers= requestHeaders)
+    try:
+        response = requests.get(url, headers=requestHeaders)
+    except Exception as e:
+        print("Erro ao realizar a request")
+        print(e)
+        await update.message.reply_text("Ops.. Não deu pra fazer sua requisição, tente novamente.")
+        await update.message.reply_text("Primeiramente, digite seu RA.")
+        return RA
+
+
     if response.status_code == 200:
         # Caso sucesso, informa o aluno e vai para o estado OPTIONS
         await update.message.reply_text("Login efetuado com sucesso")
@@ -110,14 +132,14 @@ async def recebendo_senha(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
 async def buscando_disciplina_dia(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Método que responde a solicitação de busca das disciplinas do dia"""
     # tupla com os dias da semana para mapeamento
-    nomes = ("segunda", "terca", "quarta", "quinta", "sexta", "sabado", "domingo")
+    # nomes = ("segunda", "terca", "quarta", "quinta", "sexta", "sabado", "domingo")
     
     # Descobrindo qual dia da semana é hoje
     dia_semana = date.today().weekday()
     ra,senha = credenciais(context)
 
     # realizando a request para buscar as disciplinas do dia
-    url = f"{BASE_URL}/disciplinas/{nomes[dia_semana]}"
+    url = f"{BASE_URL}/disciplinas/{dia_semana}"
     requestHeaders = {
         "user": ra,
         "password": senha
@@ -188,14 +210,6 @@ async def buscando_dados_disciplinas(update: Update, context: ContextTypes.DEFAU
     response = requests.get(url, headers= requestHeaders, timeout=10)
     responseBody = response.json()
     responseAluno = "Aqui está suas disciplinas\n"
-    # dias_semana = {
-    #     "segunda" : "Segunda",
-    #     "terca" : "Terça",
-    #     "quarta" : "Quarta",
-    #     "quinta" : "Quinta",
-    #     "sexta" : "Sexta",
-    #     "sabado" : "Sábado"
-    # }
 
     for materia in responseBody:
         # Formatando os dados
